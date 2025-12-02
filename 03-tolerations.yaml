@@ -1,0 +1,20 @@
+# If nodeSelector is matchhing with that labels on node, 
+# then the pod will be scheduled on that node successfully. If not,
+# the pod will not be scheduled, it will remain in Pending state.  
+
+# If nodeSelector is matchhing with that labels on node, but node has taints,
+# the pod will not be scheduled unless it has tolerations for those taints 
+#otherwise the pod will remain in Pending state.  
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tolerations1
+  labels:
+    purpose: "tolerations-demo"
+spec:
+  nodeSelector:
+    topology.kubernetes.io/zone: us-east-1a
+  containers:
+  - name: nginx
+    image: nginx

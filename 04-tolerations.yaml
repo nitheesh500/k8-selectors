@@ -1,0 +1,17 @@
+# If tolerations are satisfied then the pod can be scheduled on the node with taints,
+# otherwise it will remain in Pending state.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tolerations2
+  labels:
+    purpose: "tolerations-demo"
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+  tolerations:
+  - key: "hardware"
+    operator: "Equal"
+    value: "gpu"
+    effect: "NoExecute"

@@ -1,0 +1,32 @@
+# If nodeSelector is matchhing with that labels on node, but node has taints,
+# the pod will not be scheduled unless it has tolerations for those taints.
+
+# If both nodeSelector and tolerations are satisfied, 
+# the pod will be scheduled on that node successfully.
+
+# If only tolerations are satisfied but nodeSelector is not,
+# the pod will not be scheduled.
+
+# In this example, the pod has tolerations for the taints on the node
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tolerations
+  labels:
+    purpose: "tolerations-demo"
+spec:
+  nodeSelector:
+    topology.kubernetes.io/zone: us-east-1a
+  containers:
+  - name: nginx
+    image: nginx
+  tolerations:
+  - key: "hardware"
+    operator: "Equal"
+    value: "gpu"
+    effect: "NoSchedule"
+  - key: "hardware"
+    operator: "Equal"
+    value: "gpu"
+    effect: "NoExecute"

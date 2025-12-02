@@ -1,0 +1,66 @@
+  #######################################################
+  # NODE AFFINITY + TOLERATIONS — COMPLETE EXPLANATION   #
+  #######################################################
+  # Node Affinity:
+  # - Used to attract a Pod to specific nodes based on labels.
+  # - Works similar to nodeSelector but supports advanced rules:
+  #     * In, NotIn, Exists, DoesNotExist, Gt, Lt
+  #     * Multiple OR/AND conditions
+  # - Two types:
+  #     1) requiredDuringSchedulingIgnoredDuringExecution
+  #         → Hard rule. If no node matches, Pod stays Pending.
+  #     2) preferredDuringSchedulingIgnoredDuringExecution
+  #         → Soft rule. Scheduler tries to honor it but can ignore.
+
+  # What happens if nothing matches:
+  # - requiredDuringScheduling… → Pod never schedules (Pending forever).
+  # - preferredDuringScheduling… → Pod schedules on any available node.
+
+  # Taints & Tolerations:
+  # - Taints are placed on Nodes → repel Pods unless tolerated.
+  # - Tolerations are placed on Pods → allow Pod to run on tainted nodes.
+  # - Effects:
+  #     * NoSchedule    → Pod cannot schedule unless it tolerates.
+  #     * PreferNoSchedule → Scheduler avoids the node but may still schedule.
+  #     * NoExecute     → Pod is evicted unless it tolerates.
+
+  # Relationship:
+  # - Affinity: Pod saying “I WANT to run here.”
+  # - Toleration: Pod saying “I am ALLOWED to run on tainted nodes.”
+  # - BOTH may be needed when:
+  #     * Node has a label required by affinity.
+  #     * Node also has a taint the Pod must tolerate.
+
+  # Scenarios:
+  # 1) Node matches affinity → Pod schedules.
+  # 2) Node does not match affinity → Pending (if required).
+  # 3) Node tainted, Pod lacks toleration → Pod cannot schedule.
+  # 4) Node tainted, Pod tolerates → Pod allowed.
+  # 5) Node has matching label + taint → Pod must satisfy BOTH rules.
+  # 6) NoExecute taint → Pod evicted unless toleration provided.
+  #######################################################
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: affinity
+  labels:
+    purpose: "affinity-demo"
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: hardware
+            operator: In
+            values:
+            - gpu
+  containers:
+  - name: nginx
+    image: nginx
+  tolerations:
+  - key: "hardware"
+    operator: "Equal"
+    value: "gpu"
+    effect: "NoExecute"

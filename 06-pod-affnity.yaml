@@ -1,0 +1,35 @@
+# Pod-2's affinity searches for pods with label app-name=pod-1
+
+# Finds pod-1
+
+# Reads the zone of the node where pod-1 is running
+
+# Schedules pod-2 into the same zone
+
+# 🎯 Final Result:
+# ✔ Pod-2 schedules successfully
+# ✔ Pod-2 lands in us-east-1a
+apiVersion: v1
+kind: Pod
+metadata:
+  name: anti-affinity
+  labels:
+    purpose: "anti-affinity"
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: hardware
+            operator: NotIn #anti-affinity
+            values:
+            - gpu
+  containers:
+  - name: nginx
+    image: nginx
+  tolerations:
+  - key: "hardware"
+    operator: "Equal"
+    value: "gpu"
+    effect: "NoExecute"
